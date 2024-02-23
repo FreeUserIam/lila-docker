@@ -6,7 +6,8 @@ use cliclack::{
     multiselect, note, outro, select, spinner,
 };
 use local_ip_address::local_ip;
-use serde::{Deserialize, Serialize, Value};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::{
     format,
     io::Error,
