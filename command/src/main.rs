@@ -291,7 +291,7 @@ fn setup(mut config: Config) -> std::io::Result<()> {
     // dont checkout if the pr_no is empty
     if pr_no.is_empty() {
         outro("No PR number found, skipping PR checkout\n Starting services...");
-        return;
+        return Ok(());
     }
     cmd.current_dir("repos/lila")
     .arg("fetch")
