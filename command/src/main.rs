@@ -309,7 +309,7 @@ fn setup(mut config: Config) -> std::io::Result<()> {
             .expect("Failed to checkout to master branch");
     }
 
-    outro("Starting services...");
+    outro("Starting services...")
 }
 
 fn create_placeholder_dirs() {
