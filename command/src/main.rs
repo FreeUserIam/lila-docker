@@ -294,8 +294,7 @@ fn setup(mut config: Config) -> std::io::Result<()> {
     let pr_no = match std::env::var("GITPOD_GIT_PR_NUMBER") {
         Ok(value) => value,
         Err(_) => {
-            outro("Environment variable GITPOD_GIT_PR_NUMBER is not set, skipping PR checkout\n Starting services...");
-            return Ok(());
+            return outro("Environment variable GITPOD_GIT_PR_NUMBER is not set, skipping PR checkout\n Starting services...");
         }
     };
     // dont checkout if the pr_no is empty
