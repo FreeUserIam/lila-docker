@@ -281,8 +281,35 @@ fn setup(mut config: Config) -> std::io::Result<()> {
 
         progress.stop(format!("Cloned {} ✓", repo.full_name()));
     }
+    
+    // checkout a pr branch in repos/lila
+    let mut cmd = std::process::Command::new("git");
 
-    outro("Starting services...")
+    // get the pr no from the env var in gitpod
+    let pr_no = std::env::var("GITPOD_GIT_PR_NUMBER").unwrap();
+    
+    // dont checkout if the pr_no is empty
+    if pr_no.is_empty() {
+        outro("No PR number found, skipping PR checkout\n Starting services...");
+        return;
+    }
+    cmd.current_dir("repos/lila")
+    .arg("fetch")
+    .arg("upstream")
+    .arg(format!("pull/{}/head:pr-{}", pr_no, pr_no));
+
+    let status = cmd.status().unwrap();
+    if !status.success() {
+        // If the checkout failed, checkout to the master branch
+        let mut cmd = std::process::Command::new("git");
+        cmd.current_dir("repos/lila")
+            .arg("checkout")
+            .arg("master")
+            .status()
+            .expect("Failed to checkout to master branch");
+    }
+
+    outro("Starting services...");
 }
 
 fn create_placeholder_dirs() {
