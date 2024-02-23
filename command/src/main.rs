@@ -6,7 +6,7 @@ use cliclack::{
     multiselect, note, outro, select, spinner,
 };
 use local_ip_address::local_ip;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Value};
 use std::{
     format,
     io::Error,
@@ -290,36 +290,50 @@ fn setup(mut config: Config) -> std::io::Result<()> {
         println!("{}: {}", key, value);
     }
 
-    // get the pr no from the env var in gitpod
-    let pr_no = match std::env::var("GITPOD_GIT_PR_NUMBER") {
+    let workspace_context = match std::env::var("GITPOD_WORKSPACE_CONTEXT") {
         Ok(value) => value,
         Err(_) => {
-            return outro("Environment variable GITPOD_GIT_PR_NUMBER is not set, skipping PR checkout\n Starting services...");
+            return outro("Environment variable GITPOD_WORKSPACE_CONTEXT is not set, skipping PR checkout\n Starting services...");
         }
     };
-    // dont checkout if the pr_no is empty
-    if pr_no.is_empty() {
-        outro("No PR number found, skipping PR checkout\n Starting services...")
+    
+    // parse the workspace context as JSON
+    let workspace_context: Value = serde_json::from_str(&workspace_context)
+        .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
+    
+    // get the pr no from the workspace context
+    let pr_no = match workspace_context.get("envvars").and_then(|envvars| {
+        envvars
+            .as_array()
+            .and_then(|array| {
+                array
+                    .iter()
+                    .find(|envvar| envvar.get("name").map_or(false, |name| name == "GITPOD_GIT_PR_NUMBER"))
+                    .and_then(|envvar| envvar.get("value").and_then(Value::as_str))
+            })
+    });
+    
+    // dont checkout if the pr_no is None or empty
+    if pr_no.map_or(true, |pr_no| pr_no.is_empty()) {
+        return outro("No PR number found, skipping PR checkout\n Starting services...");
     }
-    else {
+    cmd.current_dir("repos/lila")
+    .arg("fetch")
+    .arg("upstream")
+    .arg(format!("pull/{}/head:pr-{}", pr_no, pr_no));
+
+    let status = cmd.status().unwrap();
+    if !status.success() {
+        // If the checkout failed, checkout to the master branch
+        let mut cmd = std::process::Command::new("git");
         cmd.current_dir("repos/lila")
-        .arg("fetch")
-        .arg("upstream")
-        .arg(format!("pull/{}/head:pr-{}", pr_no, pr_no));
-
-        let status = cmd.status().unwrap();
-        if !status.success() {
-            // If the checkout failed, checkout to the master branch
-            let mut cmd = std::process::Command::new("git");
-            cmd.current_dir("repos/lila")
-                .arg("checkout")
-                .arg("master")
-                .status()
-                .expect("Failed to checkout to master branch");
-        }
-
-        outro("Starting services...")
+            .arg("checkout")
+            .arg("master")
+            .status()
+            .expect("Failed to checkout to master branch");
     }
+
+    outro("Starting services...")
 }
 
 fn create_placeholder_dirs() {
