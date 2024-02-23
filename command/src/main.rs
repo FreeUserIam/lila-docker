@@ -285,9 +285,19 @@ fn setup(mut config: Config) -> std::io::Result<()> {
     // checkout a pr branch in repos/lila
     let mut cmd = std::process::Command::new("git");
 
+    // print all the env vars to the console
+    for (key, value) in std::env::vars() {
+        println!("{}: {}", key, value);
+    }
+
     // get the pr no from the env var in gitpod
-    let pr_no = std::env::var("GITPOD_GIT_PR_NUMBER").unwrap();
-    
+    let pr_no = match std::env::var("GITPOD_GIT_PR_NUMBER") {
+        Ok(value) => value,
+        Err(_) => {
+            outro("Environment variable GITPOD_GIT_PR_NUMBER is not set, skipping PR checkout\n Starting services...");
+            return Ok(());
+        }
+    };
     // dont checkout if the pr_no is empty
     if pr_no.is_empty() {
         outro("No PR number found, skipping PR checkout\n Starting services...")
