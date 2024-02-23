@@ -292,23 +292,25 @@ fn setup(mut config: Config) -> std::io::Result<()> {
     if pr_no.is_empty() {
         outro("No PR number found, skipping PR checkout\n Starting services...")
     }
-    cmd.current_dir("repos/lila")
-    .arg("fetch")
-    .arg("upstream")
-    .arg(format!("pull/{}/head:pr-{}", pr_no, pr_no));
-
-    let status = cmd.status().unwrap();
-    if !status.success() {
-        // If the checkout failed, checkout to the master branch
-        let mut cmd = std::process::Command::new("git");
+    else {
         cmd.current_dir("repos/lila")
-            .arg("checkout")
-            .arg("master")
-            .status()
-            .expect("Failed to checkout to master branch");
-    }
+        .arg("fetch")
+        .arg("upstream")
+        .arg(format!("pull/{}/head:pr-{}", pr_no, pr_no));
 
-    outro("Starting services...")
+        let status = cmd.status().unwrap();
+        if !status.success() {
+            // If the checkout failed, checkout to the master branch
+            let mut cmd = std::process::Command::new("git");
+            cmd.current_dir("repos/lila")
+                .arg("checkout")
+                .arg("master")
+                .status()
+                .expect("Failed to checkout to master branch");
+        }
+
+        outro("Starting services...")
+    }
 }
 
 fn create_placeholder_dirs() {
