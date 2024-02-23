@@ -303,7 +303,7 @@ fn setup(mut config: Config) -> std::io::Result<()> {
         .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
     
     // get the pr no from the workspace context
-    let pr_no = match workspace_context.get("envvars").and_then(|envvars| {
+    let pr_no = workspace_context.get("envvars").and_then(|envvars| {
         envvars
             .as_array()
             .and_then(|array| {
@@ -312,11 +312,12 @@ fn setup(mut config: Config) -> std::io::Result<()> {
                     .find(|envvar| envvar.get("name").map_or(false, |name| name == "GITPOD_GIT_PR_NUMBER"))
                     .and_then(|envvar| envvar.get("value").and_then(Value::as_str))
             })
-    });
+    }).unwrap_or("");
     
-    // dont checkout if the pr_no is None or empty
-    if pr_no.map_or(true, |pr_no| pr_no.is_empty()) {
+    // dont checkout if the pr_no is empty
+    if pr_no.is_empty() {
         return outro("No PR number found, skipping PR checkout\n Starting services...");
+        
     }
     cmd.current_dir("repos/lila")
     .arg("fetch")
