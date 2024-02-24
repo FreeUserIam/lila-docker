@@ -159,6 +159,7 @@ impl Gitpod {
     }
 
     fn has_lila_pr_no(self) -> bool {
+        println!("Lila PR number: {}", self.lila_pr_no);
         self.lila_pr_no > 0
     }
 
@@ -294,58 +295,6 @@ fn setup(mut config: Config) -> std::io::Result<()> {
 
         progress.stop(format!("Cloned {} ✓", repo.full_name()));
     }
-    
-    // checkout a pr branch in repos/lila
-    let mut cmd = std::process::Command::new("git");
-
-    // print all the env vars to the console
-    for (key, value) in std::env::vars() {
-        println!("{}: {}", key, value);
-    }
-
-    let workspace_context = match std::env::var("GITPOD_WORKSPACE_CONTEXT") {
-        Ok(value) => value,
-        Err(_) => {
-            return outro("Environment variable GITPOD_WORKSPACE_CONTEXT is not set, skipping PR checkout\n Starting services...");
-        }
-    };
-    
-    // parse the workspace context as JSON
-    let workspace_context: Value = serde_json::from_str(&workspace_context)
-        .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
-    
-    // get the pr no from the workspace context
-    let pr_no = workspace_context.get("envvars").and_then(|envvars| {
-        envvars
-            .as_array()
-            .and_then(|array| {
-                array
-                    .iter()
-                    .find(|envvar| envvar.get("name").map_or(false, |name| name == "GITPOD_GIT_PR_NUMBER"))
-                    .and_then(|envvar| envvar.get("value").and_then(Value::as_str))
-            })
-    }).unwrap_or("");
-    
-    // dont checkout if the pr_no is empty
-    if pr_no.is_empty() {
-        return outro("No PR number found, skipping PR checkout\n Starting services...");
-        
-    }
-    cmd.current_dir("repos/lila")
-    .arg("fetch")
-    .arg("upstream")
-    .arg(format!("pull/{}/head:pr-{}", pr_no, pr_no));
-
-    let status = cmd.status().unwrap();
-    if !status.success() {
-        // If the checkout failed, checkout to the master branch
-        let mut cmd = std::process::Command::new("git");
-        cmd.current_dir("repos/lila")
-            .arg("checkout")
-            .arg("master")
-            .status()
-            .expect("Failed to checkout to master branch");
-    }
 
     if Gitpod::is_host() && Gitpod::has_lila_pr_no(Gitpod::load()) {
         gitpod_checkout_pr();
@@ -384,13 +333,16 @@ fn create_placeholder_dirs() {
 }
 
 fn load_lila_pr_no() -> Option<Result<u32, std::num::TryFromIntError>> {
+    println!("Loading Lila PR number from Gitpod workspace context");
     let Ok(workspace_context) = std::env::var("GITPOD_WORKSPACE_CONTEXT") else {
         return None;
     };
 
+    println!("Workspace context: ");
     let workspace_context: Value = serde_json::from_str(&workspace_context)
         .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
 
+    println!("Lila PR number: ");
     workspace_context
         .get("envvars")
         .and_then(|envvars| {
