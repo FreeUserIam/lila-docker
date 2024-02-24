@@ -138,20 +138,32 @@ impl Repository {
 struct Gitpod {
     domain: String,
     url: String,
+    lila_pr_no: u32,
 }
 
 impl Gitpod {
     fn load() -> Self {
         let workspace_url = std::env::var("GITPOD_WORKSPACE_URL").expect("Not running in Gitpod");
 
+        let pr_no = load_lila_pr_no().unwrap_or(Ok(0)).unwrap_or(0);
+
         Self {
             domain: workspace_url.replace("https://", "8080-"),
             url: workspace_url.replace("https://", "https://8080-"),
+            lila_pr_no: pr_no,
         }
     }
 
     fn is_host() -> bool {
         std::env::var("GITPOD_WORKSPACE_URL").is_ok()
+    }
+
+    fn has_lila_pr_no(self) -> bool {
+        self.lila_pr_no > 0
+    }
+
+    fn get_lila_pr_no(self) -> u32 {
+        self.lila_pr_no
     }
 }
 
@@ -335,6 +347,10 @@ fn setup(mut config: Config) -> std::io::Result<()> {
             .expect("Failed to checkout to master branch");
     }
 
+    if Gitpod::is_host() && Gitpod::has_lila_pr_no(Gitpod::load()) {
+        gitpod_checkout_pr();
+    }
+
     outro("Starting services...")
 }
 
@@ -365,6 +381,62 @@ fn create_placeholder_dirs() {
     .for_each(|path| {
         std::fs::create_dir_all(path).unwrap();
     });
+}
+
+fn load_lila_pr_no() -> Option<Result<u32, std::num::TryFromIntError>> {
+    let Ok(workspace_context) = std::env::var("GITPOD_WORKSPACE_CONTEXT") else {
+        return None;
+    };
+
+    let workspace_context: Value = serde_json::from_str(&workspace_context)
+        .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
+
+    workspace_context
+        .get("envvars")
+        .and_then(|envvars| {
+            envvars.as_array().and_then(|array| {
+                array
+                    .iter()
+                    .find(|envvar| envvar.get("name").map_or(false, |name| name == "LILA_PR"))
+                    .and_then(|envvar| envvar.get("value").and_then(Value::as_u64))
+            })
+        })
+        .map(u32::try_from)
+}
+
+fn gitpod_checkout_pr() {
+    let pr_no = Gitpod::get_lila_pr_no(Gitpod::load());
+    let mut cmd = std::process::Command::new("git");
+
+    let mut progress = spinner();
+    progress.start(&format!("Fetching  PR-{pr_no} from lila"));
+
+    cmd.current_dir("repos/lila")
+        .arg("fetch")
+        .arg("upstream")
+        .arg(format!("pull/{pr_no}/head:pr-{pr_no}"))
+        .arg("--depth")
+        .arg("1")
+        .arg("--recurse-submodules");
+
+    let status = cmd.status().unwrap();
+    if status.success() {
+        progress.stop("Fetched PR ✓");
+        let mut cmd = std::process::Command::new("git");
+        cmd.current_dir("repos/lila")
+            .arg("checkout")
+            .arg(format!("pr-{pr_no}"));
+
+        let status = cmd.status().unwrap();
+        let mut progress = spinner();
+        if status.success() {
+            progress.stop(format!("Switched to branch 'pr-{pr_no}' ✓"));
+        } else {
+            progress.stop("Failed to checkout PR branch ✗");
+        }
+        return;
+    }
+    progress.stop("Failed to fetch PR ✗");
 }
 
 #[allow(clippy::too_many_lines)]
