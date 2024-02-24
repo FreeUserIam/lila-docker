@@ -161,17 +161,17 @@ impl Gitpod {
             .expect("Missing env GITPOD_WORKSPACE_CONTEXT");
 
         let pr_no = std::env::var("GITPOD_WORKSPACE_CONTEXT")
-                    .ok()
-                    .and_then(|context| {
-                        serde_json::from_str::<GitpodWorkspaceContext>(&context)
-                            .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON")
-                            .envvars
-                            .unwrap_or_default()
-                            .iter()
-                            .find(|envvar| envvar.name == "LILA_PR")
-                            .map(|envvar| envvar.value.clone())
-                     })
-                    .unwrap_or_default();
+            .ok()
+            .and_then(|context| {
+                serde_json::from_str::<GitpodWorkspaceContext>(&context)
+                    .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON")
+                    .envvars
+                    .unwrap_or_default()
+                    .iter()
+                    .find(|envvar| envvar.name == "LILA_PR")
+                    .map(|envvar| envvar.value.clone())
+                })
+            .unwrap_or_default();
 
         Self {
             domain: workspace_url.replace("https://", "8080-"),
