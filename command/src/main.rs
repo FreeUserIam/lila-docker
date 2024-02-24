@@ -332,12 +332,10 @@ fn create_placeholder_dirs() {
 }
 
 fn load_lila_pr_no() -> String {
-    println!("Loading Lila PR number from Gitpod workspace context");
     let Ok(workspace_context) = std::env::var("GITPOD_WORKSPACE_CONTEXT") else {
         return "".to_string();
     };
 
-    println!("Workspace context: {}", workspace_context);
     let workspace_context: Value = serde_json::from_str(&workspace_context)
         .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
 
