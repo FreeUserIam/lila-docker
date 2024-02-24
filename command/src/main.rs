@@ -162,7 +162,7 @@ impl Gitpod {
 
         let pr_no = std::env::var("GITPOD_WORKSPACE_CONTEXT")
                     .ok()
-                    .map(|context| {
+                    .and_then(|context| {
                         serde_json::from_str::<GitpodWorkspaceContext>(&context)
                             .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON")
                             .envvars
@@ -170,8 +170,7 @@ impl Gitpod {
                             .iter()
                             .find(|envvar| envvar.name == "LILA_PR")
                             .map(|envvar| envvar.value.clone())
-                    })
-                    .flatten()
+                     })
                     .unwrap_or_default();
 
         Self {
