@@ -134,6 +134,7 @@ impl Repository {
     }
 }
 
+#[allow(dead_code)]
 struct Gitpod {
     domain: String,
     url: String,
@@ -159,16 +160,19 @@ impl Gitpod {
         let workspace_context = std::env::var("GITPOD_WORKSPACE_CONTEXT")
             .expect("Missing env GITPOD_WORKSPACE_CONTEXT");
 
-        let pr_no = gitpod
-            .workspace_context
-            .envvars
-            .as_ref()
-            .and_then(|envvars| {
-                envvars
-                    .iter()
-                    .find(|envvar| envvar.name == "LILA_PR")
-                    .map(|envvar| envvar.value.clone())
-            }).unwrap_or_default();
+        let pr_no = std::env::var("GITPOD_WORKSPACE_CONTEXT")
+                    .ok()
+                    .map(|context| {
+                        serde_json::from_str::<GitpodWorkspaceContext>(&context)
+                            .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON")
+                            .envvars
+                            .unwrap_or_default()
+                            .iter()
+                            .find(|envvar| envvar.name == "LILA_PR")
+                            .map(|envvar| envvar.value.clone())
+                    })
+                    .flatten()
+                    .unwrap_or_default();
 
         Self {
             domain: workspace_url.replace("https://", "8080-"),
