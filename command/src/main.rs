@@ -338,7 +338,7 @@ fn load_lila_pr_no() -> Option<Result<u32, std::num::TryFromIntError>> {
         return None;
     };
 
-    println!("Workspace context: ");
+    println!("Workspace context: {}", workspace_context);
     let workspace_context: Value = serde_json::from_str(&workspace_context)
         .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
 
