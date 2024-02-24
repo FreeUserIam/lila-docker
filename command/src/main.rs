@@ -170,7 +170,7 @@ impl Gitpod {
                     .iter()
                     .find(|envvar| envvar.name == "LILA_PR")
                     .map(|envvar| envvar.value.clone())
-                })
+            })
             .unwrap_or_default();
 
         Self {
