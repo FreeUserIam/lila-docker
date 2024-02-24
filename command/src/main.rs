@@ -2,7 +2,7 @@
 
 use cliclack::{
     confirm, input, intro,
-    log::{self, info, remark},
+    log::{self, info},
     multiselect, note, outro, select, spinner,
 };
 use local_ip_address::local_ip;
@@ -158,7 +158,6 @@ impl Gitpod {
             std::env::var("GITPOD_WORKSPACE_URL").expect("Missing env GITPOD_WORKSPACE_URL");
         let workspace_context = std::env::var("GITPOD_WORKSPACE_CONTEXT")
             .expect("Missing env GITPOD_WORKSPACE_CONTEXT");
-        let workspace_url = std::env::var("GITPOD_WORKSPACE_URL").expect("Not running in Gitpod");
 
         let pr_no = load_lila_pr_no();
 
@@ -305,7 +304,7 @@ fn setup(mut config: Config) -> std::io::Result<()> {
         assert!(
             output.status.success(),
             "Failed to clone repo: {} - {output:?}",
-            repo.full_name(),
+            repo.full_name()
         );
 
         progress.stop(format!("✓ Cloned {}", repo.full_name()));
@@ -355,20 +354,16 @@ fn load_lila_pr_no() -> String {
         .envvars
         .as_ref()
         .and_then(|envvars| {
-            envvars.as_array().and_then(|array| {
-                array
-                    .iter()
-                    .find(|envvar| envvar.get("name").map_or(false, |name| name == "LILA_PR"))
-                    .and_then(|envvar| envvar.get("value").and_then(Value::as_str))
-            })
-        })
-        .unwrap_or("");
+            envvars
+                .iter()
+                .find(|envvar| envvar.name == "LILA_PR")
+                .map(|envvar| envvar.value.clone())
+        }).unwrap_or_default();
     pr_no.to_string()
 }
 
 fn gitpod_checkout_pr() {
     let pr_no = Gitpod::get_lila_pr_no(Gitpod::load());
-    let mut cmd = std::process::Command::new("git");
     let pr_url = format!("https://github.com/lichess-org/lila/pull/{pr_no}");
 
     let mut progress = spinner();
@@ -401,7 +396,6 @@ fn gitpod_checkout_pr() {
     );
 
     progress.stop(format!("✓ Checked out PR #{pr_no} - {pr_url}"));
-    Ok(())
 }
 
 #[allow(clippy::too_many_lines)]
