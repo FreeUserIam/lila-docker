@@ -159,7 +159,16 @@ impl Gitpod {
         let workspace_context = std::env::var("GITPOD_WORKSPACE_CONTEXT")
             .expect("Missing env GITPOD_WORKSPACE_CONTEXT");
 
-        let pr_no = load_lila_pr_no();
+        let pr_no = gitpod
+            .workspace_context
+            .envvars
+            .as_ref()
+            .and_then(|envvars| {
+                envvars
+                    .iter()
+                    .find(|envvar| envvar.name == "LILA_PR")
+                    .map(|envvar| envvar.value.clone())
+            }).unwrap_or_default();
 
         Self {
             domain: workspace_url.replace("https://", "8080-"),
@@ -344,23 +353,6 @@ fn create_placeholder_dirs() {
     .for_each(|path| {
         std::fs::create_dir_all(path).unwrap();
     });
-}
-
-fn load_lila_pr_no() -> String {
-    let gitpod = Gitpod::load();
-
-    let pr_no = gitpod
-        .workspace_context
-        .envvars
-        .as_ref()
-        .and_then(|envvars| {
-            envvars
-                .iter()
-                .find(|envvar| envvar.name == "LILA_PR")
-                .map(|envvar| envvar.value.clone())
-        }).unwrap_or_default();
-    
-    pr_no
 }
 
 fn gitpod_checkout_pr() {
