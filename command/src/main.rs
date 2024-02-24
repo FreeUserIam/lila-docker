@@ -366,6 +366,9 @@ fn load_lila_pr_no() -> String {
     pr_no.to_string()
 }
 
+fn gitpod_checkout_pr() {
+    let pr_no = Gitpod::get_lila_pr_no(Gitpod::load());
+    let mut cmd = std::process::Command::new("git");
     let pr_url = format!("https://github.com/lichess-org/lila/pull/{pr_no}");
 
     let mut progress = spinner();
