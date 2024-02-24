@@ -359,7 +359,8 @@ fn load_lila_pr_no() -> String {
                 .find(|envvar| envvar.name == "LILA_PR")
                 .map(|envvar| envvar.value.clone())
         }).unwrap_or_default();
-    pr_no.to_string()
+    
+    pr_no
 }
 
 fn gitpod_checkout_pr() {
