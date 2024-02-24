@@ -138,14 +138,14 @@ impl Repository {
 struct Gitpod {
     domain: String,
     url: String,
-    lila_pr_no: u32,
+    lila_pr_no: String,
 }
 
 impl Gitpod {
     fn load() -> Self {
         let workspace_url = std::env::var("GITPOD_WORKSPACE_URL").expect("Not running in Gitpod");
 
-        let pr_no = load_lila_pr_no().unwrap_or(Ok(0)).unwrap_or(0);
+        let pr_no = load_lila_pr_no();
 
         Self {
             domain: workspace_url.replace("https://", "8080-"),
@@ -159,11 +159,10 @@ impl Gitpod {
     }
 
     fn has_lila_pr_no(self) -> bool {
-        println!("Lila PR number: {}", self.lila_pr_no);
-        self.lila_pr_no > 0
+        !self.lila_pr_no.is_empty()
     }
 
-    fn get_lila_pr_no(self) -> u32 {
+    fn get_lila_pr_no(self) -> String {
         self.lila_pr_no
     }
 }
@@ -332,28 +331,28 @@ fn create_placeholder_dirs() {
     });
 }
 
-fn load_lila_pr_no() -> Option<Result<u32, std::num::TryFromIntError>> {
+fn load_lila_pr_no() -> String {
     println!("Loading Lila PR number from Gitpod workspace context");
     let Ok(workspace_context) = std::env::var("GITPOD_WORKSPACE_CONTEXT") else {
-        return None;
+        return "".to_string();
     };
 
     println!("Workspace context: {}", workspace_context);
     let workspace_context: Value = serde_json::from_str(&workspace_context)
         .expect("Failed to parse GITPOD_WORKSPACE_CONTEXT as JSON");
 
-    println!("Lila PR number: ");
-    workspace_context
+    let pr_no = workspace_context
         .get("envvars")
         .and_then(|envvars| {
             envvars.as_array().and_then(|array| {
                 array
                     .iter()
                     .find(|envvar| envvar.get("name").map_or(false, |name| name == "LILA_PR"))
-                    .and_then(|envvar| envvar.get("value").and_then(Value::as_u64))
+                    .and_then(|envvar| envvar.get("value").and_then(Value::as_str))
             })
         })
-        .map(u32::try_from)
+        .unwrap_or("");
+    return pr_no.to_string();
 }
 
 fn gitpod_checkout_pr() {
