@@ -333,7 +333,7 @@ fn create_placeholder_dirs() {
 
 fn load_lila_pr_no() -> String {
     let Ok(workspace_context) = std::env::var("GITPOD_WORKSPACE_CONTEXT") else {
-        String::new()
+        return String::new();
     };
 
     let workspace_context: Value = serde_json::from_str(&workspace_context)
