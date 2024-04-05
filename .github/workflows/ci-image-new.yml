@@ -1,0 +1,68 @@
+name: Publish CI image
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 17 * * *'
+  push:
+    paths:
+      - '.github/workflows/ci-image.yml'
+      - 'conf/ci.conf'
+      - 'docker/ci.Dockerfile'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout lila
+        uses: actions/checkout@v4
+        with:
+          repository: 'lichess-org/lila'
+          path: 'repos/lila'
+
+      - name: Checkout lila-ws
+        uses: actions/checkout@v4
+        with:
+          repository: 'lichess-org/lila-ws'
+          path: 'repos/lila-ws'
+
+      - name: Checkout lila-db-seed
+        uses: actions/checkout@v4
+        with:
+          repository: 'lichess-org/lila-db-seed'
+          path: 'repos/lila-db-seed'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          file: docker/ci.Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
