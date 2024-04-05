@@ -1,4 +1,4 @@
-name: Publish CI image
+name: Publish CI image new
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     - cron: '0 17 * * *'
   push:
     paths:
-      - '.github/workflows/ci-image.yml'
+      - '.github/workflows/ci-image-new.yml'
       - 'conf/ci.conf'
       - 'docker/ci.Dockerfile'
 
