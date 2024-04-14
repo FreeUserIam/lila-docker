@@ -102,6 +102,8 @@ jobs:
           brew install --cask docker
           echo "/usr/local/bin" >> $GITHUB_PATH
           which docker
+          # Find Docker
+          find / -name Docker 2>/dev/null
           # Start Docker service
           open --background -a /Applications/Docker.app/Contents/MacOS/Docker
           # Wait for Docker to start
