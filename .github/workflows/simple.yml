@@ -1,0 +1,15 @@
+name: Check macOS Latest XLarge Runner
+
+on:
+ workflow_dispatch:
+
+jobs:
+ check-macos-xlarge:
+    runs-on: macos-latest-xlarge
+    steps:
+      - name: Check macOS version and CPU cores
+        run: |
+          echo "macOS version:"
+          sw_vers
+          echo "CPU cores:"
+          sysctl -n hw.physicalcpu
