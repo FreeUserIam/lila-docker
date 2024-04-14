@@ -103,9 +103,9 @@ jobs:
           echo "/usr/local/bin" >> $GITHUB_PATH
           which docker
           # Start Docker
-          open --background -a Docker
-          # Wait for Docker to start
-          sleep 30
+          # open --background -a Docker
+          # # Wait for Docker to start
+          # sleep 30
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
