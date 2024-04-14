@@ -100,8 +100,9 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install --cask docker
+          echo "/usr/local/bin" >> $GITHUB_PATH
           # Start Docker
-          open /Applications/Docker.app
+          open --background -a Docker
           # Wait for Docker to start
           sleep 30
 
