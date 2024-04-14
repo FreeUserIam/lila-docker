@@ -105,7 +105,7 @@ jobs:
           # Start Docker
           # open --background -a Docker
           # # Wait for Docker to start
-          # sleep 30
+          sleep 60
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
