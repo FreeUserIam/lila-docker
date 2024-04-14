@@ -69,7 +69,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   build-and-publish-arm64:
-    runs-on: flyci-macos-14-m2
+    runs-on: warp-ubuntu-latest-arm64-2x
     permissions:
       contents: read
       packages: write
@@ -95,19 +95,6 @@ jobs:
         with:
           repository: "lichess-org/lila-db-seed"
           path: "repos/lila-db-seed"
-
-      - name: Install Docker
-        if: runner.os == 'macOS'
-        run: |
-          brew install --cask docker
-          echo "/usr/local/bin" >> $GITHUB_PATH
-          which docker
-          # Find Docker
-          find / -name Docker 2>/dev/null
-          # Start Docker service
-          open --background -a /Applications/Docker.app/Contents/MacOS/Docker
-          # Wait for Docker to start
-          sleep 60
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
