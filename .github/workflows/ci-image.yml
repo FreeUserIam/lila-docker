@@ -101,6 +101,7 @@ jobs:
         run: |
           brew install --cask docker
           echo "/usr/local/bin" >> $GITHUB_PATH
+          which docker
           # Start Docker
           open --background -a Docker
           # Wait for Docker to start
