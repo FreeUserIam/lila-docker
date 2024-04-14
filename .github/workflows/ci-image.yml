@@ -102,9 +102,9 @@ jobs:
           brew install --cask docker
           echo "/usr/local/bin" >> $GITHUB_PATH
           which docker
-          # Start Docker
-          # open --background -a Docker
-          # # Wait for Docker to start
+          # Start Docker service
+          open --background -a /Applications/Docker.app/Contents/MacOS/Docker
+          # Wait for Docker to start
           sleep 60
 
       - name: Set up QEMU
