@@ -369,7 +369,7 @@ fn setup(mut config: Config, first_setup: bool, fast: bool) -> std::io::Result<(
 }
 
 fn fast_setup(config: Config) -> std::io::Result<()> {
-    setup(config, false, true)
+    setup(config, true, true)
 }
 
 fn create_placeholder_dirs() {
