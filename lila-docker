@@ -23,6 +23,13 @@ add_services() {
     setup_database
 }
 
+fast_setup() {
+    rust_cmd fast_setup
+    docker compose up -d
+    run_ui_build --update
+    setup_database
+}
+
 run_start() {
     if [ -z "$(docker compose ps -a --services | xargs)" ]; then
         run_setup
@@ -166,6 +173,7 @@ show_help() {
     echo "  gitpod public Make http port 8080 public on the Gitpod instance"
     echo "  ui            Compile the frontend code. Runs in watch mode to automatically recompile on changes"
     echo "  add-services  Add new services to the existing setup"
+    echo "  fast-setup    Setup opinionated services without any prompts"
 }
 
 cd "$(dirname "$0")"
@@ -219,6 +227,9 @@ case "$@" in
         ;;
     "add-services")
         add_services
+        ;;
+    "fast-setup")
+        fast_setup
         ;;
     *)
         show_help
