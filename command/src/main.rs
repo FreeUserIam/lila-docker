@@ -225,7 +225,6 @@ fn pwd_input(user_type: &str) -> std::io::Result<String> {
     .interact()
 }
 
-#[allow(clippy::too_many_lines)]
 fn setup(mut config: Config, first_setup: bool) -> std::io::Result<()> {
     intro(BANNER)?;
 
