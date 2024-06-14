@@ -25,7 +25,7 @@ add_services() {
 
 fast_setup() {
     rust_cmd fast_setup
-    docker compose up -d
+    docker compose up
     run_ui_build --update
     setup_database
 }
