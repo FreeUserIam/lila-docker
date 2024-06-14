@@ -26,7 +26,7 @@ add_services() {
 fast_setup() {
     rust_cmd fast_setup
     docker compose run lila /lila/lila compile
-    docker compose up
+    docker compose up -d
     run_ui_build --update
     setup_database
 }
