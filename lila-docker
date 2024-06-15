@@ -32,7 +32,7 @@ fast_setup() {
     run_ui_build --update
     # wait for the services to be ready sleep for 5 seconds multiple times and check 8080 port if 200 status code is returned
     setup_database
-    for i in {1..10}; do
+    for i in {1..100}; do # 100 * 5 = 500 seconds
         sleep 5
         status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
         if [ "$status_code" -eq 200 ]; then
