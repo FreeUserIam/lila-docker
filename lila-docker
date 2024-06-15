@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 run_setup() {
+    docker compose up -d
     rust_cmd setup
 
     docker compose build
