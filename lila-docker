@@ -4,8 +4,8 @@ run_setup() {
     rust_cmd setup
 
     docker compose build
-    docker compose --profile utils build
     docker compose up -d
+    docker compose --profile utils build
 
     run_ui_build --update
 
@@ -28,8 +28,8 @@ fast_setup() {
     rust_cmd fast_setup
 
     docker compose build
-    docker compose --profile utils build
     docker compose up -d
+    docker compose --profile utils build
     run_ui_build --update
     # wait for the services to be ready sleep for 5 seconds multiple times and check 8080 port if 502 status code is returned
     setup_database
