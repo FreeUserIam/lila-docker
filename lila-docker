@@ -35,6 +35,8 @@ fast_setup() {
     for i in {1..100}; do # 100 * 5 = 500 seconds
         sleep 5
         status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+        echo "Status code: $status_code"
+        echo "Waited for $((i * 5)) seconds"
         if [ "$status_code" -eq 200 ]; then
             break
         fi
