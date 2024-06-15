@@ -25,10 +25,20 @@ add_services() {
 
 fast_setup() {
     rust_cmd fast_setup
-    docker compose run lila /lila/lila compile
+
+    docker compose build
+    docker compose --profile utils build
     docker compose up -d
     run_ui_build --update
+    # wait for the services to be ready sleep for 5 seconds multiple times and check 8080 port if 200 status code is returned
     setup_database
+    for i in {1..10}; do
+        sleep 5
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+        if [ "$status_code" -eq 200 ]; then
+            break
+        fi
+    done
 }
 
 run_start() {
