@@ -1,7 +1,7 @@
 tasks:
   - init: ./lila-docker fast-setup
   - command: |
-      ./lila-docker start
+      ./lila-docker add-services
 
 ports:
   - port: 8080
