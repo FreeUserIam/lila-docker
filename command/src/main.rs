@@ -243,9 +243,8 @@ fn setup(mut config: Config, first_setup: bool, fast: bool) -> std::io::Result<(
     let mut password: String = String::new();
     let mut services: Vec<OptionalService> = Vec::new();
 
-
     if !fast {
-        let services = prompt_for_optional_services()?;
+        services = prompt_for_optional_services()?;
 
         setup_database = confirm(if first_setup {
             "Do you want to seed the database with test users, games, etc? (Recommended)"
