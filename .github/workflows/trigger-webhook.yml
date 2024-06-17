@@ -2,9 +2,6 @@
 # It runs every day at 00:00 UTC
 name: Trigger Webhook
 on:
-  push:
-    branches:
-      - faster-gitpod
   schedule:
     - cron: '0 0 * * *'
 jobs:
