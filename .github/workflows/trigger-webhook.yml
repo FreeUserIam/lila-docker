@@ -1,0 +1,12 @@
+# This is am empty github action that just echoes a message so that we can trigger a webhook for gitpod prebuilds
+# It runs every day at 00:00 UTC
+name: Trigger Webhook
+on:
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo message
+        run: echo "Triggering webhook for gitpod prebuilds"

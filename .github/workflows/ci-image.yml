@@ -17,6 +17,8 @@ jobs:
       contents: read
       packages: write
 
+    # only run if the repository is lichess-org/lila-docker or a variable RunCI is set to true
+    if: github.repository == 'lichess-org/lila-docker' || $RunCI == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
