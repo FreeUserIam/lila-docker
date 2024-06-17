@@ -275,15 +275,15 @@ fn setup(mut config: Config, first_setup: bool, fast: bool) -> std::io::Result<(
                     true
                 },
         );
+        if Gitpod::is_host()
+        && confirm("By default, only this browser session can access your Gitpod development site.\nWould you like it to be accessible to other clients?")
+        .initial_value(false)
+        .interact()?
+        {
+            gitpod_public()?;
+        }
     }
 
-    if Gitpod::is_host()
-    && confirm("By default, only this browser session can access your Gitpod development site.\nWould you like it to be accessible to other clients?")
-    .initial_value(false)
-    .interact()?
-    {
-        gitpod_public()?;
-    }
 
     let selected_profiles: Vec<String> = services
         .iter()
