@@ -41,7 +41,7 @@ fast_setup() {
     docker compose --profile utils build
     docker compose up -d
     run_ui_build --update
-    load_config_to_env
+
     SETUP_DATABASE=true
     setup_database
     # wait for the services to be ready sleep for 5 seconds multiple times and check 8080 port if 502 status code is returned
