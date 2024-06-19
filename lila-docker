@@ -18,13 +18,36 @@ add_services() {
     # COMPOSE_PROFILES=$(all_profiles) docker compose start
     rust_cmd add_services
     
+    acquire_setup_lock
+
     docker compose build
     docker compose up -d
     setup_bbppairings
     setup_database
+
+    release_setup_lock
+}
+
+acquire_setup_lock() {
+    lockfile=./setup.lock
+    if [ -f $lockfile ]; then
+        echo "Waiting for the setup to finish..."
+        while [ -f $lockfile ]; do
+            sleep 1
+        done
+    fi
+
+    touch "$lockfile"
+}
+
+release_setup_lock() {
+    rm "$lockfile"
+    echo "Released the setup lock"
 }
 
 fast_setup() {
+    acquire_setup_lock
+
     cd repos
     # clone lila, lila-ws and  lila-db-seed if they are not already cloned by checking whether the directory is empty or does not exist
     if [ ! -d "lila" ]; then
@@ -41,6 +64,8 @@ fast_setup() {
     docker compose --profile utils build
     docker compose up -d
     run_ui_build --update
+
+    release_setup_lock
 
     SETUP_DATABASE=true
     setup_database
