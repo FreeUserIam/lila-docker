@@ -45,7 +45,11 @@
         <p>If you're just starting your environment, wait until lila finishes compiling. It will automatically start within 5-15 minutes.</p>
         <p>You can monitor the logs to see the progress:</p>
         <pre><code>docker compose logs lila --follow</code></pre>
-
+        <!-- Add this inside the <div class="container"> -->
+        <div class="logs">
+            <h3>Live Logs:</h3>
+            <pre id="dockerLogs"></pre>
+        </div>
 
         <footer>
             <p>For the full documentation, see <a href="https://github.com/lichess-org/lila-docker">https://github.com/lichess-org/lila-docker</a></p>
@@ -68,6 +72,22 @@
             };
             xhr.send();
         }, 5*1000);
+        
+    // New code for WebSocket connection to stream Docker logs
+    document.addEventListener('DOMContentLoaded', function() {
+        const logContainer = document.getElementById('dockerLogs');
+        const ws = new WebSocket('ws://localhost:8080/logs'); // Adjust the URL to your WebSocket server
+
+        ws.onmessage = function(event) {
+            const message = document.createTextNode(event.data + '\n');
+            logContainer.appendChild(message);
+            logContainer.scrollTop = logContainer.scrollHeight; // Auto-scroll to the latest log
+        };
+
+        ws.onerror = function(event) {
+            console.error('WebSocket error:', event);
+        };
+    });
     </script>
 </body>
 </html>

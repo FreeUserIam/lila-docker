@@ -4,6 +4,7 @@
 command/.cargo
 command/repos
 command/target
+nginx/errors/lila-docker-logs/target
 database
 
 settings.env
