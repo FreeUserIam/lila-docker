@@ -17,6 +17,9 @@ Click here to create a workspace:
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/lichess-org/lila-docker)
 
+If you wish to open a specific branch in Gitpod, modify the URL by appending `/tree/<branch-name>` after the repository part of the URL. For example, to open the `feature-branch` branch, use the following URL:
+
+`https://gitpod.io/#https://github.com/lichess-org/lila-docker/tree/feature-branch`
 ## Instructions
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and have it running

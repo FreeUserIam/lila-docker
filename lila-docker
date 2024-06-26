@@ -167,6 +167,8 @@ show_help() {
     echo "  gitpod public Make http port 8080 public on the Gitpod instance"
     echo "  ui            Compile the frontend code. Runs in watch mode to automatically recompile on changes"
     echo "  add-services  Add new services to the existing setup"
+    echo "  status        Show the status of all git repositories in ./repos"
+    echo "  pull          Pull the latest changes from all git repositories in ./repos"
 }
 
 cd "$(dirname "$0")"
@@ -220,6 +222,12 @@ case "$@" in
         ;;
     "add-services")
         add_services
+        ;;
+    "status")
+        bash pull-all.sh
+        ;;
+    "pull")
+        bash pull-all.sh --pull
         ;;
     *)
         show_help
