@@ -247,7 +247,6 @@ fn setup(mut config: Config, first_setup: bool, opinionated_setup: bool) -> std:
         config.su_password = Some(DEFAULT_PASSWORD.to_string());
         config.password = Some(DEFAULT_PASSWORD.to_string());
         config.setup_api_tokens = Some(true);
-        setup_database = true;
     } else {
         services = prompt_for_optional_services()?;
 
@@ -274,7 +273,6 @@ fn setup(mut config: Config, first_setup: bool, opinionated_setup: bool) -> std:
                     true
                 },
         );
-        config.setup_database = Some(setup_database);
         config.su_password = Some(su_password);
         config.password = Some(password);
 
@@ -298,6 +296,8 @@ fn setup(mut config: Config, first_setup: bool, opinionated_setup: bool) -> std:
                 .any(|service| service.compose_profile == Some(vec!["monitoring"])),
         );
     }
+
+    config.setup_database = Some(setup_database);
 
     let selected_profiles: Vec<String> = services
         .iter()
