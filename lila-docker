@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
 run_setup() {
+    write_user_id_to_env
+
     rust_cmd setup
 
     docker compose build
@@ -111,6 +113,8 @@ all_profiles() {
 }
 
 build_all_profiles() {
+    write_user_id_to_env
+
     COMPOSE_PROFILES=$(all_profiles) docker compose pull
     COMPOSE_PROFILES=$(all_profiles) docker compose build
 }
@@ -142,9 +146,14 @@ setup_database() {
         --es --es-host=elasticsearch:9200 \
         "${params[@]}"
 
-    echo "Creating database indexes..."
+    echo -n "Creating database indexes..."
     docker compose exec mongodb mongo --quiet lichess /lila/bin/mongodb/indexes.js
+    echo " done"
+
+    echo -n "Creating user trophies..."
     docker compose exec mongodb mongo --quiet lichess /lila/bin/mongodb/create-trophy-kinds.js
+    echo " done"
+
     docker compose run --rm python python /scripts/users.py
 }
 
@@ -194,16 +203,28 @@ rust_cmd() {
         cargo build --release --manifest-path command/Cargo.toml
         ./command/target/release/command "$@"
     elif [ "$(uname)" = "Darwin" ]; then
-        docker run --rm -v "$PWD/command:/command" -w /command messense/cargo-zigbuild:0.18.4 \
+        docker run --rm -v "$PWD/command:/command" -w /command messense/cargo-zigbuild:0.19.0 \
             cargo zigbuild --release --target universal2-apple-darwin
         ./command/target/universal2-apple-darwin/release/command "$@"
     else
-        docker run --rm -v "$PWD/command:/command" -w /command messense/cargo-zigbuild:0.18.4 \
+        docker run --rm -v "$PWD/command:/command" -w /command messense/cargo-zigbuild:0.19.0 \
             cargo zigbuild --release
         ./command/target/release/command "$@"
     fi
 
     load_config_to_env
+}
+
+write_user_id_to_env() {
+    if docker info 2>/dev/null | grep -q "Operating System: Docker Desktop"; then
+        echo "Running on Docker Desktop"
+        echo "USER_ID=0" > .env
+        echo "GROUP_ID=0" >> .env
+    else
+        echo "Running on Docker Engine"
+        echo "USER_ID=$(id -u)" > .env
+        echo "GROUP_ID=$(id -g)" >> .env
+    fi
 }
 
 load_config_to_env() {
