@@ -240,7 +240,7 @@ fn setup(mut config: Config, first_setup: bool, opinionated_setup: bool) -> std:
     }
 
     let mut services: Vec<OptionalService<'static>> = vec![];
-    let mut setup_database = false;
+    let mut setup_database = opinionated_setup;
 
     if opinionated_setup {
         config.setup_database = Some(true);
