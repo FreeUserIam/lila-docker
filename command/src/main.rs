@@ -277,7 +277,7 @@ fn setup(mut config: Config, first_setup: bool, opinionated_setup: bool) -> std:
         config.setup_database = Some(setup_database);
         config.su_password = Some(su_password);
         config.password = Some(password);
-        
+
         if Gitpod::is_host()
         && confirm("By default, only this browser session can access your Gitpod development site.\nWould you like it to be accessible to other clients?")
         .initial_value(false)
@@ -291,7 +291,7 @@ fn setup(mut config: Config, first_setup: bool, opinionated_setup: bool) -> std:
                 .iter()
                 .any(|service| service.compose_profile == Some(vec!["swiss-pairings"])),
         );
-    
+
         config.enable_monitoring = Some(
             services
                 .iter()

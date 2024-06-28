@@ -46,7 +46,7 @@ release_setup_lock() {
     lockfile=./setup.lock
     rm "$lockfile"
     echo "Released the setup lock"
-}asz
+}
 
 fast_setup() {
     # acquire_setup_lock
