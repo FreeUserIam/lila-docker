@@ -26,24 +26,6 @@ add_services() {
     setup_database
 }
 
-acquire_setup_lock() {
-    lockfile=./setup.lock
-    if [ -f $lockfile ]; then
-        echo "Waiting for other setup to finish..."
-        while [ -f $lockfile ]; do
-            sleep 1
-        done
-    fi
-
-    touch "$lockfile"
-}
-
-release_setup_lock() {
-    lockfile=./setup.lock
-    rm "$lockfile"
-    echo "Released the setup lock"
-}
-
 fast_setup() {
     if  is_gitpod_prebuild; then
         echo "Running in Gitpod prebuilds"
