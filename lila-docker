@@ -50,6 +50,7 @@ release_setup_lock() {
 
 fast_setup() {
     acquire_setup_lock
+    env
 
     cd repos
     # clone lila, lila-ws and  lila-db-seed if they are not already cloned by checking whether the directory is empty or does not exist
