@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Echo message
-        run: echo "Triggering webhook for gitpod prebuilds "
+        run: echo "Triggering webhook for gitpod prebuilds"
